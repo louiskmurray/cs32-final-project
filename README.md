@@ -1,2 +1,2 @@
-# cs32-final-project
-A sublease finder that matches student interns with sublease housing options in New York
+# cs32-final-project - Monopoly
+Monopoly Game in Python
