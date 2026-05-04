@@ -1,7 +1,4 @@
-# frontend.py
-# Advanced Pygame frontend for Monopoly-style game.
-# Backend handles the rules. This file handles visuals, buttons, dice animation,
-# property popups, card popups, houses, and player UI.
+ # frontend.py
 
 import pygame
 import sys
@@ -21,14 +18,10 @@ from backend.game import (
 from backend.board import BOARD, PROPERTY_DATA
 
 
-# ============================================================
-# SETUP
-# ============================================================
-
 pygame.init()
 
-WIDTH = 1400
-HEIGHT = 820
+WIDTH = 1380
+HEIGHT = 860
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Monopoly Simulator")
@@ -76,26 +69,25 @@ PLAYER_COLORS = [
     (45, 185, 185),
 ]
 
-TITLE_FONT = pygame.font.SysFont("arial", 42, bold=True)
-BIG_FONT = pygame.font.SysFont("arial", 30, bold=True)
-MID_FONT = pygame.font.SysFont("arial", 21, bold=True)
-FONT = pygame.font.SysFont("arial", 16)
-SMALL_FONT = pygame.font.SysFont("arial", 12)
-TINY_FONT = pygame.font.SysFont("arial", 10)
+TITLE_FONT = pygame.font.SysFont("arial", 38, bold=True)
+BIG_FONT = pygame.font.SysFont("arial", 28, bold=True)
+MID_FONT = pygame.font.SysFont("arial", 20, bold=True)
+FONT = pygame.font.SysFont("arial", 15)
+SMALL_FONT = pygame.font.SysFont("arial", 11)
+TINY_FONT = pygame.font.SysFont("arial", 9)
 
 
 # ============================================================
 # BOARD LAYOUT
 # ============================================================
 
-BOARD_X = 40
-BOARD_Y = 40
-CELL = 62
+BOARD_X = 55
+BOARD_Y = 45
+CELL = 60
 BOARD_SIZE = CELL * 11
 
 
 def get_board_coordinates():
-    """Map each board index to a visual coordinate."""
     coords = {}
 
     for i in range(11):
@@ -117,12 +109,10 @@ BOARD_COORDS = get_board_coordinates()
 
 
 # ============================================================
-# UI HELPERS
+# HELPERS
 # ============================================================
 
 class Button:
-    """Reusable clickable button."""
-
     def __init__(self, x, y, w, h, text, color, action):
         self.rect = pygame.Rect(x, y, w, h)
         self.text = text
@@ -131,18 +121,16 @@ class Button:
 
     def draw(self):
         mouse = pygame.mouse.get_pos()
-        hover = self.rect.collidepoint(mouse)
-
         color = self.color
-        if hover:
+
+        if self.rect.collidepoint(mouse):
             color = tuple(min(255, c + 20) for c in color)
 
-        pygame.draw.rect(screen, color, self.rect, border_radius=18)
-        pygame.draw.rect(screen, BLACK, self.rect, 2, border_radius=18)
+        pygame.draw.rect(screen, color, self.rect, border_radius=16)
+        pygame.draw.rect(screen, BLACK, self.rect, 2, border_radius=16)
 
         label = MID_FONT.render(self.text, True, BLACK)
-        label_rect = label.get_rect(center=self.rect.center)
-        screen.blit(label, label_rect)
+        screen.blit(label, label.get_rect(center=self.rect.center))
 
     def clicked(self, pos):
         return self.rect.collidepoint(pos)
@@ -174,8 +162,11 @@ def wrap_text(text, font, max_width):
     return lines
 
 
-def draw_wrapped(text, font, color, x, y, max_width, line_height):
+def draw_wrapped(text, font, color, x, y, max_width, line_height, max_lines=None):
     lines = wrap_text(text, font, max_width)
+
+    if max_lines:
+        lines = lines[:max_lines]
 
     for i, line in enumerate(lines):
         draw_text(line, font, color, x, y + i * line_height)
@@ -196,7 +187,6 @@ def short_name(space):
 
 
 def get_instruction(state):
-    """Tell user what they can do right now."""
     if state["winner"]:
         return "Game over."
 
@@ -206,13 +196,13 @@ def get_instruction(state):
         return f"{prop} is unowned and costs ${price}. Choose Buy or Skip."
 
     if not state["has_rolled"]:
-        return f"{state['current_player']}, click Roll Dice to start your turn."
+        return f"{state['current_player']}, click Roll to start your turn."
 
-    return "You rolled already. Click End Turn to pass to the next player."
+    return "You rolled already. Click End to pass to the next player."
 
 
 # ============================================================
-# DICE ANIMATION
+# DICE
 # ============================================================
 
 dice_animation_end = 0
@@ -220,13 +210,11 @@ animated_dice = (1, 1)
 
 
 def start_dice_animation():
-    """Start a short dice animation."""
     global dice_animation_end
     dice_animation_end = time.time() + 0.6
 
 
 def get_display_dice(state):
-    """Show random dice while animating, otherwise show real last roll."""
     global animated_dice
 
     if time.time() < dice_animation_end:
@@ -240,30 +228,28 @@ def get_display_dice(state):
 
 
 def draw_die(x, y, value):
-    """Draw one die."""
-    rect = pygame.Rect(x, y, 48, 48)
-    pygame.draw.rect(screen, WHITE, rect, border_radius=10)
-    pygame.draw.rect(screen, BLACK, rect, 2, border_radius=10)
+    rect = pygame.Rect(x, y, 42, 42)
+    pygame.draw.rect(screen, WHITE, rect, border_radius=9)
+    pygame.draw.rect(screen, BLACK, rect, 2, border_radius=9)
 
-    dot_positions = {
-        1: [(24, 24)],
-        2: [(14, 14), (34, 34)],
-        3: [(14, 14), (24, 24), (34, 34)],
-        4: [(14, 14), (34, 14), (14, 34), (34, 34)],
-        5: [(14, 14), (34, 14), (24, 24), (14, 34), (34, 34)],
-        6: [(14, 12), (34, 12), (14, 24), (34, 24), (14, 36), (34, 36)],
+    dots = {
+        1: [(21, 21)],
+        2: [(13, 13), (29, 29)],
+        3: [(13, 13), (21, 21), (29, 29)],
+        4: [(13, 13), (29, 13), (13, 29), (29, 29)],
+        5: [(13, 13), (29, 13), (21, 21), (13, 29), (29, 29)],
+        6: [(13, 11), (29, 11), (13, 21), (29, 21), (13, 31), (29, 31)],
     }
 
-    for dx, dy in dot_positions[value]:
+    for dx, dy in dots[value]:
         pygame.draw.circle(screen, BLACK, (x + dx, y + dy), 4)
 
 
 # ============================================================
-# BOARD DRAWING
+# BOARD
 # ============================================================
 
 def draw_board(state):
-    """Draw Monopoly-inspired board."""
     board_rect = pygame.Rect(BOARD_X, BOARD_Y, BOARD_SIZE, BOARD_SIZE)
 
     pygame.draw.rect(screen, BOARD_GREEN, board_rect)
@@ -273,23 +259,20 @@ def draw_board(state):
     pygame.draw.rect(screen, BOARD_GREEN, inner)
     pygame.draw.rect(screen, BLACK, inner, 3)
 
-    # Center logo
-    logo_rect = pygame.Rect(BOARD_X + 220, BOARD_Y + 290, 275, 82)
+    logo_rect = pygame.Rect(BOARD_X + 205, BOARD_Y + 275, 250, 72)
     pygame.draw.rect(screen, RED, logo_rect, border_radius=8)
     pygame.draw.rect(screen, BLACK, logo_rect, 3, border_radius=8)
-    draw_text("MONOPOLY", BIG_FONT, WHITE, logo_rect.x + 43, logo_rect.y + 23)
-    draw_text("PROPERTY TRADING GAME", SMALL_FONT, DARK_GRAY, BOARD_X + 250, BOARD_Y + 390)
+    draw_text("MONOPOLY", BIG_FONT, WHITE, logo_rect.x + 42, logo_rect.y + 20)
+    draw_text("PROPERTY TRADING GAME", SMALL_FONT, DARK_GRAY, BOARD_X + 225, BOARD_Y + 365)
 
-    # Decorative center cards
-    pygame.draw.rect(screen, (151, 220, 240), (BOARD_X + 125, BOARD_Y + 150, 135, 90), border_radius=8)
-    pygame.draw.rect(screen, BLACK, (BOARD_X + 125, BOARD_Y + 150, 135, 90), 2, border_radius=8)
-    draw_text("CHEST", MID_FONT, BLACK, BOARD_X + 157, BOARD_Y + 183)
+    pygame.draw.rect(screen, (151, 220, 240), (BOARD_X + 130, BOARD_Y + 150, 125, 78), border_radius=8)
+    pygame.draw.rect(screen, BLACK, (BOARD_X + 130, BOARD_Y + 150, 125, 78), 2, border_radius=8)
+    draw_text("CHEST", MID_FONT, BLACK, BOARD_X + 160, BOARD_Y + 180)
 
-    pygame.draw.rect(screen, ORANGE, (BOARD_X + 465, BOARD_Y + 475, 135, 90), border_radius=8)
-    pygame.draw.rect(screen, BLACK, (BOARD_X + 465, BOARD_Y + 475, 135, 90), 2, border_radius=8)
-    draw_text("?", TITLE_FONT, WHITE, BOARD_X + 515, BOARD_Y + 495)
+    pygame.draw.rect(screen, ORANGE, (BOARD_X + 420, BOARD_Y + 445, 125, 78), border_radius=8)
+    pygame.draw.rect(screen, BLACK, (BOARD_X + 420, BOARD_Y + 445, 125, 78), 2, border_radius=8)
+    draw_text("?", TITLE_FONT, WHITE, BOARD_X + 470, BOARD_Y + 458)
 
-    # Player position map
     position_map = {}
     for idx, player in enumerate(state["players"]):
         position_map.setdefault(player["position"], []).append((idx, player))
@@ -306,47 +289,36 @@ def draw_board(state):
             prop_type = PROPERTY_DATA[space]["type"]
 
             if prop_type == "property":
-                strip = pygame.Rect(x, y, CELL, 13)
+                strip = pygame.Rect(x, y, CELL, 12)
                 pygame.draw.rect(screen, color, strip)
                 pygame.draw.rect(screen, BLACK, strip, 1)
             else:
                 pygame.draw.rect(screen, color, rect)
                 pygame.draw.rect(screen, BLACK, rect, 2)
 
-        # Space number and name
-        draw_text(i, TINY_FONT, BLACK, x + 4, y + 2)
+        draw_text(i, TINY_FONT, BLACK, x + 3, y + 2)
 
         name_lines = wrap_text(short_name(space), TINY_FONT, 52)
         for line_i, line in enumerate(name_lines[:4]):
-            draw_text(line, TINY_FONT, BLACK, x + 5, y + 15 + line_i * 10)
+            draw_text(line, TINY_FONT, BLACK, x + 4, y + 14 + line_i * 10)
 
-        # Price
         if space in PROPERTY_DATA:
-            price = PROPERTY_DATA[space]["price"]
-            draw_text(f"${price}", TINY_FONT, BLACK, x + 5, y + 50)
+            draw_text(f"${PROPERTY_DATA[space]['price']}", TINY_FONT, BLACK, x + 4, y + 50)
 
-        # Houses
         houses = state.get("houses", {})
-        house_count = houses.get(space, 0)
-        for h in range(house_count):
-            house_x = x + 7 + h * 12
+        for h in range(houses.get(space, 0)):
+            house_x = x + 6 + h * 10
             house_y = y + 36
-            pygame.draw.rect(screen, GREEN, (house_x, house_y, 9, 9))
-            pygame.draw.rect(screen, BLACK, (house_x, house_y, 9, 9), 1)
+            pygame.draw.rect(screen, GREEN, (house_x, house_y, 8, 8))
+            pygame.draw.rect(screen, BLACK, (house_x, house_y, 8, 8), 1)
 
-        # Player tokens
         if i in position_map:
-            for token_i, (player_i, player) in enumerate(position_map[i]):
-                token_x = x + 13 + (token_i % 3) * 15
-                token_y = y + 53 - (token_i // 3) * 13
+            for token_i, (player_i, _) in enumerate(position_map[i]):
+                token_x = x + 12 + (token_i % 3) * 13
+                token_y = y + 52 - (token_i // 3) * 12
 
-                pygame.draw.circle(
-                    screen,
-                    PLAYER_COLORS[player_i % len(PLAYER_COLORS)],
-                    (token_x, token_y),
-                    7,
-                )
-                pygame.draw.circle(screen, BLACK, (token_x, token_y), 7, 2)
+                pygame.draw.circle(screen, PLAYER_COLORS[player_i % len(PLAYER_COLORS)], (token_x, token_y), 6)
+                pygame.draw.circle(screen, BLACK, (token_x, token_y), 6, 2)
 
 
 # ============================================================
@@ -354,146 +326,119 @@ def draw_board(state):
 # ============================================================
 
 def draw_dashboard(state):
-    """Draw right-side dashboard."""
-    panel_x = 780
-    panel_y = 40
-    panel_w = 570
-    panel_h = 610
+    panel_x = 760
+    panel_y = 45
+    panel_w = 575
+    panel_h = 600
 
-    pygame.draw.rect(screen, PAPER, (panel_x, panel_y, panel_w, panel_h), border_radius=28)
-    pygame.draw.rect(screen, BLACK, (panel_x, panel_y, panel_w, panel_h), 3, border_radius=28)
+    pygame.draw.rect(screen, PAPER, (panel_x, panel_y, panel_w, panel_h), border_radius=26)
+    pygame.draw.rect(screen, BLACK, (panel_x, panel_y, panel_w, panel_h), 3, border_radius=26)
 
-    draw_text("Game Dashboard", BIG_FONT, BLACK, panel_x + 28, panel_y + 22)
+    draw_text("Game Dashboard", BIG_FONT, BLACK, panel_x + 26, panel_y + 22)
+    draw_text(f"Current Player: {state['current_player']}", MID_FONT, PINK, panel_x + 26, panel_y + 66)
 
-    draw_text(
-        f"Current Player: {state['current_player']}",
-        MID_FONT,
-        PINK,
-        panel_x + 28,
-        panel_y + 68,
-    )
-
-    # Instruction card
     instruction = get_instruction(state)
-    instr_rect = pygame.Rect(panel_x + 28, panel_y + 105, 515, 65)
-    pygame.draw.rect(screen, LIGHT_PINK, instr_rect, border_radius=16)
-    draw_wrapped(instruction, FONT, BLACK, instr_rect.x + 16, instr_rect.y + 12, 485, 19)
+    instr_rect = pygame.Rect(panel_x + 26, panel_y + 102, 520, 60)
+    pygame.draw.rect(screen, LIGHT_PINK, instr_rect, border_radius=14)
+    draw_wrapped(instruction, FONT, BLACK, instr_rect.x + 14, instr_rect.y + 10, 490, 18, max_lines=2)
 
-    # Dice display
-    dice_rect = pygame.Rect(panel_x + 28, panel_y + 185, 230, 70)
+    dice_rect = pygame.Rect(panel_x + 26, panel_y + 178, 240, 62)
     pygame.draw.rect(screen, (255, 245, 220), dice_rect, border_radius=14)
     pygame.draw.rect(screen, GRAY, dice_rect, 2, border_radius=14)
-    draw_text("Dice", FONT, BLACK, dice_rect.x + 16, dice_rect.y + 10)
+    draw_text("Dice", FONT, BLACK, dice_rect.x + 14, dice_rect.y + 8)
 
     dice = get_display_dice(state)
     if dice:
         d1, d2 = dice
-        draw_die(dice_rect.x + 78, dice_rect.y + 14, d1)
-        draw_die(dice_rect.x + 135, dice_rect.y + 14, d2)
+        draw_die(dice_rect.x + 78, dice_rect.y + 10, d1)
+        draw_die(dice_rect.x + 130, dice_rect.y + 10, d2)
     else:
-        draw_text("No roll yet", FONT, DARK_GRAY, dice_rect.x + 75, dice_rect.y + 34)
+        draw_text("No roll yet", FONT, DARK_GRAY, dice_rect.x + 78, dice_rect.y + 34)
 
-    # Card display
-    card_rect = pygame.Rect(panel_x + 275, panel_y + 185, 268, 70)
+    card_rect = pygame.Rect(panel_x + 286, panel_y + 178, 260, 62)
     pygame.draw.rect(screen, WHITE, card_rect, border_radius=14)
     pygame.draw.rect(screen, PINK, card_rect, 2, border_radius=14)
 
     if state.get("current_card"):
-        card_text = state["current_card"]["text"]
-        draw_text("Card Drawn", FONT, BLACK, card_rect.x + 14, card_rect.y + 9)
-        draw_wrapped(card_text, SMALL_FONT, BLACK, card_rect.x + 14, card_rect.y + 32, 235, 14)
+        draw_text("Card Drawn", FONT, BLACK, card_rect.x + 14, card_rect.y + 7)
+        draw_wrapped(state["current_card"]["text"], SMALL_FONT, BLACK, card_rect.x + 14, card_rect.y + 30, 230, 13, max_lines=2)
     else:
-        draw_text("Card", FONT, BLACK, card_rect.x + 14, card_rect.y + 9)
-        draw_text("No card drawn", SMALL_FONT, DARK_GRAY, card_rect.x + 14, card_rect.y + 36)
+        draw_text("Card", FONT, BLACK, card_rect.x + 14, card_rect.y + 7)
+        draw_text("No card drawn", SMALL_FONT, DARK_GRAY, card_rect.x + 14, card_rect.y + 33)
 
-    # Players
-    draw_text("Players", MID_FONT, BLACK, panel_x + 28, panel_y + 275)
+    draw_text("Players", MID_FONT, BLACK, panel_x + 26, panel_y + 258)
 
-    y = panel_y + 308
+    y = panel_y + 292
     for idx, player in enumerate(state["players"]):
-        card = pygame.Rect(panel_x + 28, y, 515, 63)
+        card = pygame.Rect(panel_x + 26, y, 520, 58)
 
-        pygame.draw.rect(screen, WHITE, card, border_radius=15)
-        pygame.draw.rect(screen, PLAYER_COLORS[idx % len(PLAYER_COLORS)], card, 3, border_radius=15)
+        pygame.draw.rect(screen, WHITE, card, border_radius=14)
+        pygame.draw.rect(screen, PLAYER_COLORS[idx % len(PLAYER_COLORS)], card, 3, border_radius=14)
 
-        draw_text(player["name"], FONT, BLACK, card.x + 14, card.y + 7)
-        draw_text(f"${player['money']}", SMALL_FONT, BLACK, card.x + 14, card.y + 30)
-        draw_text(f"At: {player['space']}", SMALL_FONT, BLACK, card.x + 90, card.y + 30)
-        draw_text(f"Props: {len(player['properties'])}", SMALL_FONT, BLACK, card.x + 415, card.y + 30)
+        draw_text(player["name"], FONT, BLACK, card.x + 12, card.y + 6)
+        draw_text(f"${player['money']}", SMALL_FONT, BLACK, card.x + 12, card.y + 31)
+        draw_text(f"At: {player['space']}", SMALL_FONT, BLACK, card.x + 88, card.y + 31)
+        draw_text(f"Props: {len(player['properties'])}", SMALL_FONT, BLACK, card.x + 420, card.y + 31)
 
-        y += 73
-        if y > panel_y + 495:
+        y += 66
+        if y > panel_y + 470:
             break
 
-    # Feed
-    feed = pygame.Rect(panel_x + 28, panel_y + 522, 515, 72)
+    feed = pygame.Rect(panel_x + 26, panel_y + 490, 520, 82)
     pygame.draw.rect(screen, (250, 250, 250), feed, border_radius=14)
     pygame.draw.rect(screen, GRAY, feed, 2, border_radius=14)
     draw_text("Feed", FONT, BLACK, feed.x + 14, feed.y + 8)
 
     logs = [log for log in state["log"][-3:] if log.strip()]
-    log_y = feed.y + 29
+    log_y = feed.y + 28
 
     if not logs:
         draw_text("No moves yet.", SMALL_FONT, DARK_GRAY, feed.x + 14, log_y)
     else:
         for log in logs:
-            draw_wrapped("- " + log, SMALL_FONT, BLACK, feed.x + 14, log_y, 480, 14)
-            log_y += 19
+            draw_wrapped("- " + log, SMALL_FONT, BLACK, feed.x + 14, log_y, 480, 13, max_lines=1)
+            log_y += 17
 
 
 # ============================================================
-# POPUPS
+# ACTIONS + CONTROLS
 # ============================================================
 
-def draw_property_popup(state):
-    """Draw Buy/Skip popup if property is available."""
-    if not state["pending_action"]:
-        return
-
-    action = state["pending_action"]
-    prop = action["property"]
-    price = action["price"]
-
-    data = PROPERTY_DATA[prop]
-    color = PROPERTY_COLORS.get(data["color"], GRAY)
-
-    popup = pygame.Rect(810, 665, 510, 115)
-    pygame.draw.rect(screen, PAPER, popup, border_radius=22)
-    pygame.draw.rect(screen, BLACK, popup, 3, border_radius=22)
-
-    pygame.draw.rect(screen, color, (popup.x + 20, popup.y + 20, 80, 75), border_radius=10)
-    pygame.draw.rect(screen, BLACK, (popup.x + 20, popup.y + 20, 80, 75), 2, border_radius=10)
-
-    draw_text("Property Available", MID_FONT, BLACK, popup.x + 120, popup.y + 18)
-    draw_text(prop, FONT, BLACK, popup.x + 120, popup.y + 47)
-    draw_text(f"Price: ${price} | Base Rent: ${data['rent']}", SMALL_FONT, DARK_GRAY, popup.x + 120, popup.y + 72)
-
-
-def draw_house_panel(state):
-    """Show properties where current player can buy houses."""
+def draw_action_panel(state):
+    action = state.get("pending_action")
     buildable = state.get("buildable_properties", [])
 
-    panel = pygame.Rect(40, 715, 730, 75)
-    pygame.draw.rect(screen, PAPER, panel, border_radius=22)
-    pygame.draw.rect(screen, BLACK, panel, 3, border_radius=22)
+    panel = pygame.Rect(760, 665, 575, 100)
+    pygame.draw.rect(screen, PAPER, panel, border_radius=20)
+    pygame.draw.rect(screen, BLACK, panel, 2, border_radius=20)
 
-    draw_text("Build Houses", MID_FONT, BLACK, panel.x + 20, panel.y + 22)
+    if action:
+        prop = action["property"]
+        price = action["price"]
+        data = PROPERTY_DATA[prop]
+        color = PROPERTY_COLORS.get(data["color"], GRAY)
 
-    if not buildable:
-        draw_text("Own a full color set to build houses.", FONT, DARK_GRAY, panel.x + 180, panel.y + 27)
+        pygame.draw.rect(screen, color, (panel.x + 20, panel.y + 22, 58, 50), border_radius=8)
+        pygame.draw.rect(screen, BLACK, (panel.x + 20, panel.y + 22, 58, 50), 2, border_radius=8)
+
+        draw_text("Property Available", FONT, BLACK, panel.x + 95, panel.y + 18)
+        draw_text(prop, SMALL_FONT, BLACK, panel.x + 95, panel.y + 42)
+        draw_text(f"Price: ${price} | Rent: ${data['rent']}", SMALL_FONT, DARK_GRAY, panel.x + 335, panel.y + 42)
+
+    elif buildable:
+        draw_text("Build Houses", FONT, BLACK, panel.x + 20, panel.y + 18)
+        draw_text("You own a full color set. Build options appear below.", SMALL_FONT, DARK_GRAY, panel.x + 20, panel.y + 43)
+
     else:
-        draw_text("Click a property button to add a house.", FONT, DARK_GRAY, panel.x + 180, panel.y + 27)
+        draw_text("Property Actions", FONT, BLACK, panel.x + 20, panel.y + 18)
+        draw_text("Buy, skip, and house-building actions will appear here.", SMALL_FONT, DARK_GRAY, panel.x + 20, panel.y + 43)
 
-
-# ============================================================
-# CONTROL BAR
-# ============================================================
 
 def draw_control_bar():
-    pygame.draw.rect(screen, PAPER, (40, 665, 730, 42), border_radius=18)
-    pygame.draw.rect(screen, BLACK, (40, 665, 730, 42), 2, border_radius=18)
-    draw_text("Controls", MID_FONT, BLACK, 60, 674)
+    panel = pygame.Rect(55, 725, 660, 70)
+    pygame.draw.rect(screen, PAPER, panel, border_radius=20)
+    pygame.draw.rect(screen, BLACK, panel, 2, border_radius=20)
+    draw_text("Controls", MID_FONT, BLACK, panel.x + 20, panel.y + 22)
 
 
 def draw_buttons(buttons):
@@ -508,25 +453,25 @@ def draw_buttons(buttons):
 def draw_start_screen(input_text):
     screen.fill(BG)
 
-    card = pygame.Rect(335, 170, 730, 400)
-    pygame.draw.rect(screen, PAPER, card, border_radius=30)
-    pygame.draw.rect(screen, BLACK, card, 3, border_radius=30)
+    card = pygame.Rect(350, 185, 680, 370)
+    pygame.draw.rect(screen, PAPER, card, border_radius=28)
+    pygame.draw.rect(screen, BLACK, card, 3, border_radius=28)
 
-    draw_text("MONOPOLY SIMULATOR", TITLE_FONT, BLACK, 470, 230)
-    draw_text("Enter player names separated by commas", MID_FONT, DARK_GRAY, 465, 295)
+    draw_text("MONOPOLY SIMULATOR", TITLE_FONT, BLACK, 475, 245)
+    draw_text("Enter player names separated by commas", MID_FONT, DARK_GRAY, 470, 310)
 
-    input_box = pygame.Rect(445, 360, 510, 60)
+    input_box = pygame.Rect(440, 375, 500, 55)
     pygame.draw.rect(screen, WHITE, input_box, border_radius=16)
     pygame.draw.rect(screen, PINK, input_box, 3, border_radius=16)
 
-    draw_text(input_text, FONT, BLACK, input_box.x + 16, input_box.y + 19)
+    draw_text(input_text, FONT, BLACK, input_box.x + 16, input_box.y + 18)
 
-    draw_text("Example: luke, louis, andy", FONT, DARK_GRAY, 540, 445)
-    draw_text("Press ENTER to start", MID_FONT, PINK, 565, 490)
+    draw_text("Example: luke, louis, andy", FONT, DARK_GRAY, 565, 460)
+    draw_text("Press ENTER to start", MID_FONT, PINK, 585, 500)
 
 
 # ============================================================
-# MAIN APP
+# MAIN
 # ============================================================
 
 def main():
@@ -581,30 +526,29 @@ def main():
 
         draw_board(state)
         draw_dashboard(state)
+        draw_action_panel(state)
         draw_control_bar()
-        draw_house_panel(state)
-        draw_property_popup(state)
 
-        buttons = []
+        buttons = [
+            Button(195, 742, 115, 38, "Roll", GREEN, lambda: [start_dice_animation(), roll_current_player(game)]),
+            Button(330, 742, 85, 38, "Buy", PINK, lambda: choose_buy_property(game)),
+            Button(435, 742, 85, 38, "Skip", YELLOW, lambda: choose_skip_property(game)),
+            Button(540, 742, 105, 38, "End", BLUE, lambda: end_turn(game)),
+        ]
 
-        buttons.append(Button(160, 663, 130, 42, "Roll Dice", GREEN, lambda: [start_dice_animation(), roll_current_player(game)]))
-        buttons.append(Button(305, 663, 95, 42, "Buy", PINK, lambda: choose_buy_property(game)))
-        buttons.append(Button(415, 663, 95, 42, "Skip", YELLOW, lambda: choose_skip_property(game)))
-        buttons.append(Button(525, 663, 130, 42, "End Turn", BLUE, lambda: end_turn(game)))
-
-        # House buttons
         buildable = state.get("buildable_properties", [])
-        start_x = 240
-        for i, prop in enumerate(buildable[:3]):
+        start_x = 960
+
+        for i, prop in enumerate(buildable[:2]):
             buttons.append(
                 Button(
-                    start_x + i * 165,
-                    733,
-                    150,
-                    38,
+                    start_x + i * 155,
+                    727,
+                    140,
+                    34,
                     short_name(prop),
                     GREEN,
-                    lambda p=prop: buy_house(game, p)
+                    lambda p=prop: buy_house(game, p),
                 )
             )
 
@@ -616,8 +560,8 @@ def main():
             overlay.fill(WHITE)
             screen.blit(overlay, (0, 0))
 
-            draw_text("GAME OVER", TITLE_FONT, BLACK, 560, 350)
-            draw_text(f"{state['winner']} wins!", MID_FONT, PINK, 590, 410)
+            draw_text("GAME OVER", TITLE_FONT, BLACK, 550, 360)
+            draw_text(f"{state['winner']} wins!", MID_FONT, PINK, 570, 415)
 
         pygame.display.flip()
 
