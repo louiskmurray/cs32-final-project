@@ -1,167 +1,102 @@
 # Monopoly CS32 Final Project
 
-## Project Description
+## Overview
+This project is an interactive digital version of Monopoly built in Python. It automates core gameplay including turns, dice rolls, movement, passing Go, property buying, rent, cards, jail, taxes, houses, and bankruptcy, while providing a visual Pygame interface.
 
-This project is a fully interactive digital version of Monopoly built in Python.  
-Our program recreates the core mechanics of the game, including player turns, dice rolls, movement around the board, passing Go, buying properties, paying rent, drawing Chance and Community Chest cards, going to jail, paying taxes, building houses, and bankruptcy.
-
-The project consists of:
-- A modular backend that handles all game rules and state
-- A Pygame frontend that provides a visual, interactive interface
-
-Players can interact with the game through buttons (Roll, Buy, Skip, End Turn), and the UI updates in real time to reflect game state changes.
+Players interact using buttons (Roll, Buy, Skip, End Turn), and the UI updates in real time.
 
 ---
 
 ## Features
-
-### Core Gameplay
-- Create multiple players with starting money and position
-- Roll dice and move around the board
-- Collect $200 for passing Go
-- Buy unowned properties
-- Pay rent on owned properties
-- Handle railroads and utilities
-- Draw Chance and Community Chest cards
-- Handle Income Tax and Luxury Tax
-- Send players to jail and process jail turns
-- Detect bankruptcy
-- Determine when the game is over
-
-### Advanced Features
-- Modular backend split into:
-  - board.py
-  - player.py
-  - cards.py
-  - game.py
-- Interactive Pygame frontend
-- Visual Monopoly-style board
-- Player tokens displayed on board
-- Dice roll system with animation
-- Event feed showing game actions
-- Buy / Skip property system (no auto-play)
-- House building system (for full color sets)
-- Dynamic UI that updates based on game state
+- Multiplayer support (custom player names)
+- Dice rolling and board movement with Go bonus
+- Property purchasing and rent (including railroads and utilities)
+- Chance and Community Chest cards
+- Jail system and taxes
+- Bankruptcy and win detection
+- House building for full color sets
+- Real-time event log and interactive UI
 
 ---
 
 ## Project Structure
-
 backend/
-    board.py
-    player.py
-    cards.py
-    game.py
+  board.py
+  player.py
+  cards.py
+  game.py
 frontend.py
-README.md
 
 ---
 
-## Installing Pygame
+## Setup and Running
 
-Before running the game, you need to install Pygame.
-
-Run this in your terminal:
+Install pygame:
 
 python3 -m pip install pygame
 
-If that doesn’t work, try:
-
-pip3 install pygame
-
----
-
-## Verifying Installation
-
-You can test if Pygame installed correctly by running:
-
-python3 -c "import pygame; print(pygame.__version__)"
-
-If it prints a version number, Pygame is installed correctly.
-
----
-
-## How to Run the Code
-
-Run the full interactive game:
+Run the game:
 
 python3 frontend.py
 
----
-
-## Important Note
-
-The Pygame interface must be run locally on your computer.
-
-It will NOT display properly in cloud environments such as:
-- GitHub Codespaces
-- Online IDEs
-
-If you try to run it there, you will only see:
-
-pygame 2.x.x  
-Hello from the pygame community...
-
-and no game window will appear.
-
-To properly run the game, download the project to your computer and run:
-
-python3 frontend.py
+Note: The Pygame interface must be run locally. It will not display in environments like GitHub Codespaces or other online IDEs.
 
 ---
 
 ## Design Overview
 
-### Inputs
+Inputs:
 - Player names
 - User actions (Roll Dice, Buy, Skip, End Turn, Build House)
 
-### Outputs
+Outputs:
 - Updated board state
 - Player positions
 - Money and property ownership
 - Event log
-- Winner (when game ends)
+- Winner (when the game ends)
 
-### Logical Components
-- Backend processes game logic
-- Frontend displays state and handles user interaction
-- Game state is shared between backend and frontend
+Architecture:
+- Backend (Python) handles all game logic and state
+- Frontend (Pygame) renders the board and handles user interaction
+- The frontend calls backend functions and displays the updated game state
 
 ---
 
-## External Contributors / Sources
+## Collaboration
+
+This project was developed collaboratively in person. We worked together on design, implementation, and debugging.
+
+We also used a shared Google Colab-style workflow at times to test ideas and experiment with logic.
+
+Luke handled most of the GitHub pushes since he had more experience with Git, but all group members contributed to the implementation, design decisions, and debugging.
+
+---
+
+## Use of Generative AI
 
 We used ChatGPT as a development tool to assist with:
-- Debugging Python logic
-- Refactoring backend into a modular structure
-- Designing and improving the Pygame user interface
-- Implementing animations (dice rolling, UI updates)
-- Fixing layout and spacing issues in the frontend
+- Debugging Python code
+- Refactoring the backend into a modular structure
+- Improving the Pygame UI layout and spacing
+- Implementing features like dice animation and UI behavior
 
-A significant portion of the UI improvements, debugging, and animation logic in Pygame was developed with the help of ChatGPT.
+These suggestions were used as starting points and were always reviewed, tested, and modified by our team.
 
-All code suggestions were:
-- Carefully reviewed
-- Tested by our team
-- Modified as needed to fit our project design
-
-ChatGPT was used as a tool to accelerate development, but we ensured full understanding of all implemented features.
+We also used ChatGPT to help organize and refine this README.
 
 ---
 
 ## Future Improvements
 
-If we continued working on this project, we would add:
 - Full Monopoly rules (hotels, trading, auctions)
-- Multiplayer networking
-- Save/load game functionality
-- Improved animations (token movement, card flips)
+- Multiplayer support
+- Save/load functionality
+- Improved animations (token movement, card interactions)
 - More polished UI and sound effects
 
 ---
 
 ## Summary
 
-This project demonstrates how to build a modular software system with a Python backend and a graphical frontend.  
-We combined data structures, algorithms, and UI design to recreate a complex board game in an interactive digital format.
+We built a modular Monopoly game with a Python backend and an interactive Pygame frontend, combining game logic, data structures, and UI design into a cohesive system.
