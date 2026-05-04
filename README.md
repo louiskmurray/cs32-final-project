@@ -75,15 +75,29 @@ Luke handled most of the GitHub pushes since he had more experience with Git, bu
 
 ## Use of Generative AI
 
-We used ChatGPT as a development tool to assist with:
-- Debugging Python code
-- Refactoring the backend into a modular structure
-- Improving the Pygame UI layout and spacing
-- Implementing features like dice animation and UI behavior
+We used ChatGPT as a development tool to assist with specific parts of the implementation, including:
 
-These suggestions were used as starting points and were always reviewed, tested, and modified by our team.
+- Debugging backend logic such as:
+  - turn handling (`roll_current_player`)
+  - movement and landing logic (`handle_landing`)
+- Refactoring the backend into a modular structure (`board.py`, `player.py`, `cards.py`, `game.py`)
+- Implementing the **pending_action system** for Buy/Skip decisions
+- Improving and fixing **Pygame UI layout**, especially:
+  - spacing issues between board, dashboard, and controls
+  - resizing the board (`CELL`, `BOARD_X`, `BOARD_Y`)
+  - repositioning buttons and panels
+- Implementing **dice animation logic**, including:
+  - `start_dice_animation()`
+  - `get_display_dice()`
+- Creating reusable UI helpers such as:
+  - `wrap_text()` and `draw_wrapped()` for text formatting
+  - button rendering and hover effects
+- Fixing UI overflow issues (feed panel, bottom row visibility)
+- Designing and refining **property popups and action panels**
 
-We also used ChatGPT to help organize and refine this README.
+These contributions were used as **suggestions or partial snippets**, not full solutions. All code was reviewed, tested, and modified by our group to ensure correctness and understanding.
+
+We also used ChatGPT to help refine and organize this README.
 
 ---
 
