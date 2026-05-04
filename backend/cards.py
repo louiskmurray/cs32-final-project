@@ -1,5 +1,5 @@
 # backend/cards.py
-# This file stores Chance and Community Chest cards and drawing logic.
+# Stores Chance and Community Chest cards.
 
 import random
 

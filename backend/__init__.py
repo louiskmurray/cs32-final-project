@@ -1,5 +1,5 @@
 # backend/__init__.py
-# Makes backend functions easier to import elsewhere.
+# Makes backend functions importable by frontend.
 
 from backend.game import (
     create_game,
@@ -8,6 +8,8 @@ from backend.game import (
     choose_buy_property,
     choose_skip_property,
     end_turn,
+    buy_house,
+    get_buildable_properties,
     take_turn,
     play_game
 )

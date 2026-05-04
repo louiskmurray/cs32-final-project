@@ -1,8 +1,8 @@
 # backend/player.py
-# This file handles player creation and player helper functions.
+# Handles player creation and player helper functions.
 
 def create_player(name):
-    """Create a new player dictionary."""
+    """Create a new player."""
     return {
         "name": name,
         "money": 1500,
@@ -15,7 +15,7 @@ def create_player(name):
 
 
 def find_player_by_name(players, name):
-    """Find a player object by name."""
+    """Find a player by name."""
     for player in players:
         if player["name"] == name:
             return player
@@ -23,12 +23,12 @@ def find_player_by_name(players, name):
 
 
 def get_active_players(players):
-    """Return all players who are not bankrupt."""
+    """Return players who are still in the game."""
     return [player for player in players if not player["bankrupt"]]
 
 
 def get_winner(players):
-    """Return winner if only one player remains."""
+    """Return winner if only one active player remains."""
     active = get_active_players(players)
 
     if len(active) == 1:
